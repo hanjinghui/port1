@@ -47,6 +47,11 @@
     <result column="LEGAL_PERSON_ID_CARD" jdbcType="VARCHAR" property="legalPersonIdCard" />
     <result column="SHOP_IMGS" jdbcType="LONGVARCHAR" property="shopImgs" />
   </resultMap>
+  <resultMap id="ExtraBaseResultMap" type="com.louquanapp.dao.model.Shop" extends="BaseResultMap">
+    <result column="USER_ACCT" jdbcType="VARCHAR" property="userAcct" />
+
+  </resultMap>
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     <!--
       WARNING - @mbg.generated
@@ -334,7 +339,7 @@
   </select>
 
   <select id="queryShopListByShopIds"  resultMap="BaseResultMap">
-        select SHOP_ID,SHOP_NAME,SHOP_LOGO,SHOP_AREA,SHOP_ADDRESS,AUDIT_STATUS from dcdg_goods_shop_base   where SHOP_ID in
+        select SHOP_ID,SHOP_NAME,SHOP_LOGO,SHOP_AREA,SHOP_ADDRESS,AUDIT_STATUS,REFUSE_REASON from dcdg_goods_shop_base   where SHOP_ID in
         <foreach collection="shopIds" item="id" open="(" separator=","
                  close=")">#{id}
         </foreach>
@@ -342,6 +347,15 @@
 
   <select id="queryShopTypeByShopId" parameterType="java.lang.String" resultType="Integer">
         select  SHOP_TYPE from dcdg_goods_shop_base  where SHOP_ID = #{shopId,jdbcType=CHAR}
+    </select>
+
+  <select id="queyShopByShopIdForSubAccount"  resultMap="ExtraBaseResultMap">
+        	select a.USER_ACCT  ,b.SHOP_ID,b.SHOP_NAME,b.SHOP_ADDRESS,b.SHOP_AREA,b.GRPS,b.LINK_PHONE,b.GRPS_ADRESS
+				from andji_system_user_base a left join dcdg_goods_shop_base b on a.JPUSH_REG_ID=b.SHOP_ID
+				where a.JPUSH_REG_ID = #{shopId,jdbcType=CHAR}  and a.user_id in
+              <foreach collection="userIds" item="id" open="(" separator=","
+                       close=")">#{id}
+              </foreach>
     </select>
 
 </mapper>

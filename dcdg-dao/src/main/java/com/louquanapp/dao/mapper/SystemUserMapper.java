@@ -95,4 +95,9 @@ public interface SystemUserMapper {
     String queryRelationLevelByUserId(@Param("userId")String userId);
 
     int existUserAcct(@Param("userAcct")String userAcct);
+    int updateSystemUser(SystemUser record);
+
+    SystemUser queryUserAcctAndShopNameByShopId(@Param("shopId")String shopId);
+
+    String queryUserIdByShopId(@Param("shopId")String shopId);
 }

@@ -524,7 +524,7 @@ public class RegisterBiz {
     public void doRegisterTest(String account,String pwd,String custId,String shopId) {
         Customer customer=new Customer();
          Date now = new Date();
-         customer.setLoginPwd(DigestUtils.md5DigestAsHex(pwd.getBytes()));
+        customer.setLoginPwd(DigestUtils.md5DigestAsHex(pwd.getBytes()));
         customer.setRegistTime(new Date());
         customer.setCustId(custId);
         customer.setInviteCode(custId);

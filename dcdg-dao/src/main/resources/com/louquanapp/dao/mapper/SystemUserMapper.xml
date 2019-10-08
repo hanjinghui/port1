@@ -26,6 +26,11 @@
     <result column="DEDUCTION_POINT" jdbcType="DOUBLE" property="deductionPoint" />
     <result column="RELATION_LEVEL" jdbcType="TINYINT" property="relationLevel" />
   </resultMap>
+
+  <resultMap id="ExtraBaseResultMap" type="com.louquanapp.dao.model.SystemUser" extends="BaseResultMap">
+    <result column="SHOP_NAME" jdbcType="VARCHAR" property="shopName" />
+  </resultMap>
+
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     <!--
       WARNING - @mbg.generated
@@ -146,6 +151,13 @@
     from andji_system_user_base  where USER_ID = #{userId,jdbcType=CHAR}
   </select>
 
+  <select id="queryUserAcctAndShopNameByShopId" resultMap="ExtraBaseResultMap">
+
+       select a.USER_ACCT,b.SHOP_NAME,a.USER_ID from andji_system_user_base a  left join dcdg_goods_shop_base b on a.JPUSH_REG_ID=b.SHOP_ID
+ where a.JPUSH_REG_ID = #{shopId,jdbcType=CHAR}
+
+
+  </select>
 
   <select id="queryCustIdsByUserIds" resultType="String">
       select CUST_ID  from  dcdg_goods_shop_base  where SHOP_ID in
@@ -174,4 +186,30 @@
            select count(1) from andji_system_user_base  where USER_ACCT = #{userAcct,jdbcType=VARCHAR}
 
   </select>
+
+
+  <update id="updateSystemUser" parameterType="com.louquanapp.dao.model.SystemUser">
+
+    update andji_system_user_base
+    <set>
+      <if test="userAcct != null ">
+        USER_ACCT = #{userAcct,jdbcType=VARCHAR},
+      </if>
+      <if test="userName != null ">
+        USER_NAME = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="userPwd != null ">
+        USER_PWD = #{userPwd,jdbcType=CHAR},
+      </if>
+    </set>
+
+    where USER_ID = #{userId,jdbcType=CHAR}
+  </update>
+
+
+
+    <select id="queryUserIdByShopId" parameterType="String" resultType="String">
+      select USER_ID from andji_system_user_base   where JPUSH_REG_ID = #{shopId,jdbcType=CHAR}
+  </select>
+
 </mapper>

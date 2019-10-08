@@ -14,6 +14,12 @@ import javax.validation.constraints.Pattern;
 public class ReqLinkUPAccountAdd extends ReqToken{
 
     /**
+     * 店铺ID
+     */
+    private String shopId;
+
+
+    /**
      * 店铺名称
      */
     @NotBlank(message = "店铺名称不能为空！")
@@ -23,7 +29,7 @@ public class ReqLinkUPAccountAdd extends ReqToken{
      * 账号名称
      */
     @NotBlank(message = "账号名称不能为空！")
-    @Pattern(regexp="^[a-zA-Z][a-zA-Z0-9_]{4,19}$",message="账号名称只能为5到20个字母或数字，且开头只能值字母")
+    @Pattern(regexp="^[a-zA-Z][a-zA-Z0-9_]{4,18}$",message="账号名称只能为5到20个字母或数字，且开头只能值字母")
     private String account;
     /**
      * 密码
@@ -65,6 +71,14 @@ public class ReqLinkUPAccountAdd extends ReqToken{
      */
     @NotBlank(message = "GRPS-地址不能为空")
     private String grpsAdress;
+
+    public String getShopId() {
+        return shopId;
+    }
+
+    public void setShopId(String shopId) {
+        this.shopId = shopId;
+    }
 
     public String getGrpsAdress() {
         return grpsAdress;

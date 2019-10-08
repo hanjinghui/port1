@@ -1184,6 +1184,164 @@ public class CustomerBiz {
     }
 
     /**
+     * 子账号详情
+     * @param shopId
+     * @param userId
+     * @return
+     */
+    @Transactional
+    public TypeJsonResult subAccountDetail(String  shopId,String userId) {
+        try {
+
+            TypeJsonResult jsonResult=new TypeJsonResult(false);
+            if(StringUtil.isEmpty(shopId)){
+                jsonResult.setMessage("商品id不能为空！");
+                return jsonResult;
+            }
+
+            List<String> userIds=queryUserRelationUserIds(userId);
+            Shop shop=shopMapper.queyShopByShopIdForSubAccount(shopId,userIds);
+            jsonResult.setType(shop);
+            jsonResult.setStatusCode(true);
+            return jsonResult;
+        } catch (Exception e) {
+            String msg = "子账号详情";
+            msg = String.format("在%s过程中,服务器开小差了", msg);
+            if (e instanceof HuhuaminException) {
+                throw new HuhuaminExceptionPlan(e.getMessage());
+            }
+            throw new HuhuaminException(msg, e);
+        }
+
+    }
+
+    /**
+     * 修改子账号
+     * @param reqLinkUPAccountAdd
+     * @param userId
+     * @return
+     */
+    @Transactional
+    public JsonResult updateSubAccount(ReqLinkUPAccountAdd reqLinkUPAccountAdd,String userId) {
+        try {
+
+            JsonResult jsonResult=new JsonResult(false);
+            String shopId=reqLinkUPAccountAdd.getShopId();
+            if(StringUtil.isEmpty(shopId)){
+                jsonResult.setMessage("店铺ID不能为空！");
+                return jsonResult;
+            }
+
+
+            String relationLevel=systemUserMapper.queryRelationLevelByUserId(userId);
+            String account=reqLinkUPAccountAdd.getAccount();
+            String pwd=reqLinkUPAccountAdd.getPwd();
+
+            if(StringUtils.isBlank(relationLevel)){
+                throw new HuhuaminException("商铺级别错误！");
+            }
+            if(!(relationLevel.equals("1")||relationLevel.equals("2"))){
+                throw new HuhuaminException("商铺级别不够！");
+            }
+
+           // SystemUser systemUser=systemUserMapper.queryUserAcctAndShopNameByShopId(shopId);
+
+            if(systemUserMapper.existUserAcct(account)>1){
+                throw new HuhuaminException("账号名称已经存在！");
+            }
+
+            if(shopMapper.existShopByShopName(reqLinkUPAccountAdd.getShopName())>1){
+                throw new HuhuaminException("店铺名称已经存在！");
+            }
+
+            ReqLinkUPAccountUpdate r=new ReqLinkUPAccountUpdate();
+
+            Shop shop=shopMapper.selectShortByPrimaryKey(systemUserMapper.queryShopIdByUserId(userId));
+            String linkPhone= StringUtils.isNotBlank(reqLinkUPAccountAdd.getLinkPhone())?reqLinkUPAccountAdd.getLinkPhone():"无";
+            String linkMan=StringUtils.isNotBlank(reqLinkUPAccountAdd.getLinkMan())?reqLinkUPAccountAdd.getLinkMan():"无";
+
+            reqLinkUPAccountAdd.setLinkMan(linkMan);
+            reqLinkUPAccountAdd.setLinkPhone(linkPhone);
+
+            linkUPAccountUpdate(reqLinkUPAccountAdd, shopId,account,pwd);
+            jsonResult.setStatusCode(true);
+            return jsonResult;
+        } catch (Exception e) {
+            String msg = "修改子账号";
+            msg = String.format("在%s过程中,服务器开小差了", msg);
+            if (e instanceof HuhuaminException) {
+                throw new HuhuaminExceptionPlan(e.getMessage());
+            }
+            throw new HuhuaminException(msg, e);
+        }
+
+    }
+
+    /**
+     * 联通前后台商铺相关信息--修改
+     * @param reqLinkUPAccount
+     * @param custId
+     * @param relationLevel
+     * @param priUser
+     * @param shopId
+     * @param account
+     * @param pwd
+     * @return
+     */
+    @Transactional
+    public JsonResult linkUPAccountUpdate(ReqLinkUPAccountAdd reqLinkUPAccount,String shopId,String account,String pwd) {
+        try {
+            JsonResult jsonResult=new JsonResult(false);
+
+            /****************************商铺管理表开始*****************************/
+
+            Shop shop=new Shop();
+            shop.setShopId(shopId);
+            shop.setShopName(reqLinkUPAccount.getShopName());
+            shop.setAuditStatus((byte)2);//店铺审核状态[2-待审核 3-审核失败 4-审核通过]
+            shop.setShopStatus((byte)4);//店铺状态[3-禁用 4-可用]
+            shop.setShopArea(reqLinkUPAccount.getShopArea());
+            shop.setShopAddress(reqLinkUPAccount.getShopAdress());
+            shop.setGrps(reqLinkUPAccount.getGrps());
+            shop.setGrpsAdress(reqLinkUPAccount.getGrpsAdress());
+            shop.setLinkMan(reqLinkUPAccount.getLinkMan());
+            shop.setLinkPhone(reqLinkUPAccount.getLinkPhone());
+
+            shop.setUpdateTime(new Date());
+
+            int count=shopMapper.updateSelectByPrimaryKey(shop);
+            if(count!=1){
+                throw new HuhuaminExceptionPlan("店铺信息修改失败！");
+            }
+
+            /****************************商铺管理表结束*****************************/
+            /****************************后台用户表开始*****************************/
+            SystemUser systemUser = new SystemUser();
+            systemUser.setUserId(systemUserMapper.queryUserIdByShopId(shopId));
+            systemUser.setUserAcct(account);
+            systemUser.setUserName(account);
+            systemUser.setUserPwd(org.springframework.util.DigestUtils.md5DigestAsHex(pwd.getBytes()));
+
+            count=systemUserMapper.updateSystemUser(systemUser);
+            if (count != 1) {
+                throw new HuhuaminExceptionPlan("后台用户表信息修改失败！");
+            }
+            /****************************后台用户表结束*****************************/
+            jsonResult.setStatusCode(true);
+            return jsonResult;
+        } catch (Exception e) {
+            String msg = "联通前后台商铺相关信息--修改";
+            msg = String.format("在%s过程中,服务器开小差了", msg);
+            if (e instanceof HuhuaminException) {
+                throw new HuhuaminExceptionPlan(e.getMessage());
+            }
+            throw new HuhuaminException(msg, e);
+
+
+        }
+    }
+
+    /**
      * 增加子账号
      * @param reqLinkUPAccountAdd
      * @param userId
@@ -1241,7 +1399,7 @@ public class CustomerBiz {
                 r.setGrpsAdress(reqLinkUPAccountAdd.getGrpsAdress());
                 r.setBusinessLicense("businessLicense");
                 r.setLegalPersonIdCard("legalPersonIdCard");
-                linkUPAccountUpdate(r, custId,relationLevel,userId,shopId,account,pwd);
+                linkUPAccountAdd(r, custId,relationLevel,userId,shopId,account,pwd);
             jsonResult.setStatusCode(true);
             return jsonResult;
         } catch (Exception e) {
@@ -1267,7 +1425,7 @@ public class CustomerBiz {
      * @return
      */
     @Transactional
-    public JsonResult linkUPAccountUpdate(ReqLinkUPAccountUpdate reqLinkUPAccount, String custId,String relationLevel
+    public JsonResult linkUPAccountAdd(ReqLinkUPAccountUpdate reqLinkUPAccount, String custId,String relationLevel
             ,String priUser,String shopId,String account,String pwd) {
         try {
             JsonResult jsonResult=new JsonResult(false);

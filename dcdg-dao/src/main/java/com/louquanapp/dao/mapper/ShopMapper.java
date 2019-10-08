@@ -66,4 +66,7 @@ public interface ShopMapper {
     List<Shop> queryShopListByShopIds(@Param("shopIds") List<String> shopIds);
 
     int queryShopTypeByShopId(@Param("shopId") String shopId);
+
+    Shop queyShopByShopIdForSubAccount(@Param("shopId") String shopId,@Param("userIds") List<String> userIds);
+
 }

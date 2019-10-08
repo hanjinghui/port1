@@ -406,4 +406,33 @@ public class UserApi {
         if (tokenDie(jsonResult, custId)) return jsonResult;
         return customerBiz.addSubAccount(reqSource,custId);
     }
+
+    /**
+     * 子账号详情
+     * @param reqSource
+     * @param bindingResult
+     * @return
+     */
+    @PostMapping("/auth/busioness/subAccountDetail/{shopId}")
+    public JsonResult subAccountDetail(@PathVariable("shopId") String shopId,@RequestBody @Valid ReqToken reqSource, BindingResult bindingResult) {
+        JsonResult jsonResult = new JsonResult(false);
+        String custId = jedisService.getCustIdByToken(reqSource.getToken());
+        if (tokenDie(jsonResult, custId)) return jsonResult;
+        return customerBiz.subAccountDetail(shopId,custId);
+    }
+
+
+    /**
+     * 修改子账号
+     * @param reqSource
+     * @param bindingResult
+     * @return
+     */
+    @PostMapping("/auth/busioness/updateSubAccount")
+    public JsonResult updateSubAccount(@RequestBody @Valid ReqLinkUPAccountAdd reqSource, BindingResult bindingResult) {
+        JsonResult jsonResult = new JsonResult(false);
+        String custId = jedisService.getCustIdByToken(reqSource.getToken());
+        if (tokenDie(jsonResult, custId)) return jsonResult;
+        return customerBiz.updateSubAccount(reqSource,custId);
+    }
 }

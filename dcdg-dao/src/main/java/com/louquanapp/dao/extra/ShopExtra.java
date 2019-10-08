@@ -98,6 +98,19 @@ public class ShopExtra {
      */
     private String token;
 
+    /**
+     * 后台账号
+     */
+    private String userAcct;
+
+    public String getUserAcct() {
+        return userAcct;
+    }
+
+    public void setUserAcct(String userAcct) {
+        this.userAcct = userAcct;
+    }
+
     public String getToken() {
         return token;
     }
