@@ -22,7 +22,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project-version>${project.version}</project-version>
-        <org.springframework-version>4.3.7.RELEASE</org.springframework-version>
+        <org.springframework-version>5.2.20.RELEASE</org.springframework-version>
         <org.aspectj-version>1.8.1</org.aspectj-version>
         <druid.version>1.0.9</druid.version>
         <mybatis.version>3.4.2</mybatis.version>
